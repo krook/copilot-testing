@@ -34,22 +34,26 @@ jobs:
           # Debug: Print first 200 chars of PR body
           print(f"PR body preview: {repr(pr_body[:200])}")
           
-          # Patterns to match completed checkboxes
-          patterns = [
-              r'\[[xX]\]\s*You\'ve provided a link to documentation',
-              r'\[[xX]\]\s*The maintainer\(s\) also created or updated',
-              r'\[[xX]\]\s*You\'ve sent an email with the email address'
-          ]
+          # Find all checkboxes in order (both checked and unchecked)
+          # Pattern matches: - [ ] or - [x] or - [X]
+          all_checkboxes = re.findall(r'- \[([xX ])\]', pr_body, re.MULTILINE)
           
+          print(f"Found {len(all_checkboxes)} total checkboxes: {all_checkboxes}")
+          
+          # Check if first 3 checkboxes are completed
           check_results = []
-          for i, pattern in enumerate(patterns, 1):
-              matches = re.findall(pattern, pr_body, re.IGNORECASE | re.MULTILINE)
-              is_checked = len(matches) > 0
-              check_results.append(is_checked)
-              print(f"Pattern {i}: Found {len(matches)} matches - {'CHECKED' if is_checked else 'UNCHECKED'}")
+          for i in range(3):  # Check first 3 checkboxes
+              if i < len(all_checkboxes):
+                  is_checked = all_checkboxes[i].lower() == 'x'
+                  check_results.append(is_checked)
+                  print(f"Checkbox {i+1}: {'CHECKED' if is_checked else 'UNCHECKED'} ({all_checkboxes[i]})")
+              else:
+                  # Not enough checkboxes found
+                  check_results.append(False)
+                  print(f"Checkbox {i+1}: NOT FOUND")
           
           all_complete = all(check_results)
-          print(f"All requirements complete: {all_complete}")
+          print(f"All first three checkboxes complete: {all_complete}")
           
           # Write to GitHub output file only
           github_output = os.environ.get('GITHUB_OUTPUT')
@@ -224,7 +228,7 @@ jobs:
                       project = row[0].replace('|', '\\|') if row[0] else '-'
                       maintainer = row[1].replace('|', '\\|') if row[1] else '-'
                       company = row[2].replace('|', '\\|') if row[2] else '-'
-                      email = row[3].replace('|', '\\|') if row[3] else '_To be filled manually_'
+                      email = row[3].replace('|', '\\|') if row[3] else '_Shared by email_'
                       github = row[4].replace('|', '\\|') if row[4] else '-'
                       change = row[5].replace('|', '\\|') if row[5] else '-'
                       
