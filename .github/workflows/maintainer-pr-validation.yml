@@ -27,32 +27,37 @@ jobs:
           cat > check_requirements.py << 'EOF'
           import os
           import re
-          import sys
           
           # Get PR body from environment
           pr_body = os.getenv('PR_BODY', '')
           
+          # Debug: Print first 200 chars of PR body
+          print(f"PR body preview: {repr(pr_body[:200])}")
+          
           # Patterns to match completed checkboxes
           patterns = [
-              r'\[[xX]\]\s+You\'ve provided a link to documentation',
-              r'\[[xX]\]\s+The maintainer\(s\) also created or updated',
-              r'\[[xX]\]\s+You\'ve sent an email with the email address'
+              r'\[[xX]\]\s*You\'ve provided a link to documentation',
+              r'\[[xX]\]\s*The maintainer\(s\) also created or updated',
+              r'\[[xX]\]\s*You\'ve sent an email with the email address'
           ]
           
-          checks = []
+          check_results = []
           for i, pattern in enumerate(patterns, 1):
-              matches = len(re.findall(pattern, pr_body, re.IGNORECASE))
-              checks.append(matches > 0)
-              print(f"check{i}={1 if matches > 0 else 0}")
+              matches = re.findall(pattern, pr_body, re.IGNORECASE | re.MULTILINE)
+              is_checked = len(matches) > 0
+              check_results.append(is_checked)
+              print(f"Pattern {i}: Found {len(matches)} matches - {'CHECKED' if is_checked else 'UNCHECKED'}")
           
-          all_complete = all(checks)
-          print(f"all_required_complete={'true' if all_complete else 'false'}")
+          all_complete = all(check_results)
+          print(f"All requirements complete: {all_complete}")
           
-          # Write to GitHub output
-          with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
-              for i, check in enumerate(checks, 1):
-                  f.write(f"check{i}={1 if check else 0}\n")
-              f.write(f"all_required_complete={'true' if all_complete else 'false'}\n")
+          # Write to GitHub output file only
+          github_output = os.environ.get('GITHUB_OUTPUT')
+          if github_output:
+              with open(github_output, 'a') as f:
+                  for i, check in enumerate(check_results, 1):
+                      f.write(f"check{i}={1 if check else 0}\n")
+                  f.write(f"all_required_complete={'true' if all_complete else 'false'}\n")
           EOF
           
           # Run the Python script
