@@ -71,7 +71,7 @@ jobs:
           # Add comment explaining requirements
           gh pr comment ${{ github.event.pull_request.number }} --body "⚠️ **PR Requirements Not Met**
 
-          This PR cannot be approved until the first three checkboxes in the PR template are marked complete.
+          This PR cannot be approved until the first three checkboxes in the PR template are marked complete."
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
