@@ -23,33 +23,42 @@ jobs:
       - name: Check PR requirements
         id: check-requirements
         run: |
-          # Extract the PR body and save to file for better handling
-          echo '${{ github.event.pull_request.body }}' > pr_body.txt
+          # Create a Python script to safely parse the PR body
+          cat > check_requirements.py << 'EOF'
+          import os
+          import re
+          import sys
           
-          # Check if the first three checkboxes are completed
-          # Looking for [x] or [X] followed by the expected text
-          check1=$(grep -c '\[[xX]\] You'\''ve provided a link to documentation' pr_body.txt 2>/dev/null || echo "0")
-          check2=$(grep -c '\[[xX]\] The maintainer(s) also created or updated' pr_body.txt 2>/dev/null || echo "0")
-          check3=$(grep -c '\[[xX]\] You'\''ve sent an email with the email address' pr_body.txt 2>/dev/null || echo "0")
+          # Get PR body from environment
+          pr_body = os.getenv('PR_BODY', '')
           
-          # Ensure we have valid integers
-          check1=${check1:-0}
-          check2=${check2:-0}
-          check3=${check3:-0}
+          # Patterns to match completed checkboxes
+          patterns = [
+              r'\[[xX]\]\s+You\'ve provided a link to documentation',
+              r'\[[xX]\]\s+The maintainer\(s\) also created or updated',
+              r'\[[xX]\]\s+You\'ve sent an email with the email address'
+          ]
           
-          echo "check1=$check1" >> $GITHUB_OUTPUT
-          echo "check2=$check2" >> $GITHUB_OUTPUT
-          echo "check3=$check3" >> $GITHUB_OUTPUT
+          checks = []
+          for i, pattern in enumerate(patterns, 1):
+              matches = len(re.findall(pattern, pr_body, re.IGNORECASE))
+              checks.append(matches > 0)
+              print(f"check{i}={1 if matches > 0 else 0}")
           
-          echo "Debug: check1=$check1, check2=$check2, check3=$check3"
+          all_complete = all(checks)
+          print(f"all_required_complete={'true' if all_complete else 'false'}")
           
-          if [ "$check1" -gt 0 ] && [ "$check2" -gt 0 ] && [ "$check3" -gt 0 ]; then
-            echo "all_required_complete=true" >> $GITHUB_OUTPUT
-            echo "All required checkboxes are completed"
-          else
-            echo "all_required_complete=false" >> $GITHUB_OUTPUT
-            echo "Missing required checkboxes"
-          fi
+          # Write to GitHub output
+          with open(os.environ.get('GITHUB_OUTPUT', '/dev/null'), 'a') as f:
+              for i, check in enumerate(checks, 1):
+                  f.write(f"check{i}={1 if check else 0}\n")
+              f.write(f"all_required_complete={'true' if all_complete else 'false'}\n")
+          EOF
+          
+          # Run the Python script
+          python3 check_requirements.py
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
 
       - name: Convert to draft if requirements not met
         if: steps.check-requirements.outputs.all_required_complete == 'false' && github.event.pull_request.draft == false
