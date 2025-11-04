@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, edited, ready_for_review, synchronize]
     paths:
-      - 'project-maintainers.csv'
+      - "project-maintainers.csv"
 
 permissions:
   contents: read
@@ -27,19 +27,19 @@ jobs:
           cat > check_requirements.py << 'EOF'
           import os
           import re
-          
+
           # Get PR body from environment
           pr_body = os.getenv('PR_BODY', '')
-          
+
           # Debug: Print first 200 chars of PR body
           print(f"PR body preview: {repr(pr_body[:200])}")
-          
+
           # Find all checkboxes in order (both checked and unchecked)
           # Pattern matches: - [ ] or - [x] or - [X]
           all_checkboxes = re.findall(r'- \[([xX ])\]', pr_body, re.MULTILINE)
-          
+
           print(f"Found {len(all_checkboxes)} total checkboxes: {all_checkboxes}")
-          
+
           # Check if first 3 checkboxes are completed
           check_results = []
           for i in range(3):  # Check first 3 checkboxes
@@ -51,10 +51,10 @@ jobs:
                   # Not enough checkboxes found
                   check_results.append(False)
                   print(f"Checkbox {i+1}: NOT FOUND")
-          
+
           all_complete = all(check_results)
           print(f"All first three checkboxes complete: {all_complete}")
-          
+
           # Write to GitHub output file only
           github_output = os.environ.get('GITHUB_OUTPUT')
           if github_output:
@@ -63,7 +63,7 @@ jobs:
                       f.write(f"check{i}={'true' if check else 'false'}\n")
                   f.write(f"all_required_complete={'true' if all_complete else 'false'}\n")
           EOF
-          
+
           # Run the Python script
           python3 check_requirements.py
         env:
@@ -94,13 +94,13 @@ jobs:
         run: |
           # Get the changes in the CSV file
           git diff HEAD~1 HEAD project-maintainers.csv > csv_changes.diff
-          
+
           # Parse the CSV changes and create the change summary
           python3 << 'EOF'
           import csv
           import sys
           import os
-          
+
           def parse_csv_file(filename):
               """Parse CSV file and return list of rows with project inheritance"""
               rows = []
@@ -123,7 +123,7 @@ jobs:
               except FileNotFoundError:
                   return []
               return rows
-          
+
           def create_change_summary():
               """Analyze changes and create summary"""
               # Get current CSV content
@@ -179,18 +179,18 @@ jobs:
                       })
               
               return changes
-          
+
           changes = create_change_summary()
-          
+
           # Create the output CSV content
           csv_content = "Project,Maintainer Name,Company,Email,GitHub Handle,Change\n"
           for change in changes:
               csv_content += f"{change['project']},{change['maintainer']},{change['company']},,{change['github']},{change['change']}\n"
-          
+
           # Write to file for email
           with open('changes_summary.csv', 'w') as f:
               f.write(csv_content)
-          
+
           # Set output for GitHub Actions
           print(f"Found {len(changes)} changes")
           with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
@@ -205,7 +205,7 @@ jobs:
           python3 << 'EOF'
           import csv
           import os
-          
+
           def create_markdown_table():
               """Convert CSV changes to Markdown table"""
               if not os.path.exists('changes_summary.csv'):
@@ -242,17 +242,17 @@ jobs:
                       table += f"| {project} | {maintainer} | {company} | {email} | {github} | {change_emoji} |\n"
               
               return table
-          
+
           markdown_table = create_markdown_table()
-          
+
           # Write to file for use in next step
           with open('changes_table.md', 'w') as f:
               f.write(markdown_table)
           EOF
-          
+
           # Read the generated table and post comment
           CHANGES_TABLE=$(cat changes_table.md)
-          
+
           gh pr comment ${{ github.event.pull_request.number }} --body "## 📋 Maintainer Changes Summary
 
           The following maintainer changes have been detected and are ready for processing:
