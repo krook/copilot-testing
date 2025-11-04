@@ -12,13 +12,18 @@ This repository includes GitHub Actions workflows to validate pull requests that
 ### 2. Maintainer PR Validation (`maintainer-pr-validation.yml`)
 
 - Validates that required checklist items are completed in PR template
-- Automatically converts PRs to draft status if requirements aren't met
+- Posts warning comments when requirements aren't met
+- Posts approval comments when all requirements are complete
 - Analyzes changes and posts formatted summaries as PR comments when ready
 - Generates change summaries in both CSV and Markdown table formats
 
 ## No Configuration Required
 
 This workflow uses only the built-in `GITHUB_TOKEN` and doesn't require any additional secrets or external services.
+
+## Optional: Enhanced Draft Management
+
+For automatic draft conversion functionality, see [PAT_TOKEN_SETUP.md](PAT_TOKEN_SETUP.md) for instructions on using a Personal Access Token with elevated permissions.
 
 ## How it Works
 
