@@ -6,7 +6,7 @@ on:
       - "project-maintainers.csv"
 
 jobs:
-  verify-csv-validation:
+  validate-csv:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
