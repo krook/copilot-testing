@@ -23,23 +23,32 @@ jobs:
       - name: Check PR requirements
         id: check-requirements
         run: |
-          # Extract the PR body
-          PR_BODY="${{ github.event.pull_request.body }}"
+          # Extract the PR body and save to file for better handling
+          echo '${{ github.event.pull_request.body }}' > pr_body.txt
           
           # Check if the first three checkboxes are completed
           # Looking for [x] or [X] followed by the expected text
-          check1=$(echo "$PR_BODY" | grep -c '\[[xX]\] You'\''ve provided a link to documentation' || echo "0")
-          check2=$(echo "$PR_BODY" | grep -c '\[[xX]\] The maintainer(s) also created or updated' || echo "0")
-          check3=$(echo "$PR_BODY" | grep -c '\[[xX]\] You'\''ve sent an email with the email address' || echo "0")
+          check1=$(grep -c '\[[xX]\] You'\''ve provided a link to documentation' pr_body.txt 2>/dev/null || echo "0")
+          check2=$(grep -c '\[[xX]\] The maintainer(s) also created or updated' pr_body.txt 2>/dev/null || echo "0")
+          check3=$(grep -c '\[[xX]\] You'\''ve sent an email with the email address' pr_body.txt 2>/dev/null || echo "0")
+          
+          # Ensure we have valid integers
+          check1=${check1:-0}
+          check2=${check2:-0}
+          check3=${check3:-0}
           
           echo "check1=$check1" >> $GITHUB_OUTPUT
           echo "check2=$check2" >> $GITHUB_OUTPUT
           echo "check3=$check3" >> $GITHUB_OUTPUT
           
+          echo "Debug: check1=$check1, check2=$check2, check3=$check3"
+          
           if [ "$check1" -gt 0 ] && [ "$check2" -gt 0 ] && [ "$check3" -gt 0 ]; then
             echo "all_required_complete=true" >> $GITHUB_OUTPUT
+            echo "All required checkboxes are completed"
           else
             echo "all_required_complete=false" >> $GITHUB_OUTPUT
+            echo "Missing required checkboxes"
           fi
 
       - name: Convert to draft if requirements not met
