@@ -103,7 +103,6 @@ Graduated,Prometheus,Alex Greenbank,Grafana Labs,alexgreenbank,https://prometheu
 ,,Arve Knudsen,Grafana Labs,aknuds1,
 ,,Augustin Husson,Amadeus,Nexucis,
 ,,Ayoub Mrini,Red Hat,machine424,
-,,Bartłomiej Płotka,Google,bwplotka,
 ,,Ben Kochie,Reddit,superq,
 ,,Ben Reedy,Indue Ltd,breed808,
 ,,Björn Rabenstein,Grafana Labs,beorn7,
@@ -112,11 +111,12 @@ Graduated,Prometheus,Alex Greenbank,Grafana Labs,alexgreenbank,https://prometheu
 ,,Callum Styan,Grafana Labs,cstyan,
 ,,Carrie Edwards,Grafana Labs,carrieedwards,
 ,,Chris Marchbanks,Grafana Labs,csmarchbanks,
-,,Chris Sinjakli,PlanetScale,Sinjo,
+,,Chris Sinjakli,Cisco,Sinjo,
 ,,Conrad Hoffmann,,bitfehler,
 ,,Cristian Greco,Grafana Labs,cristiangreco,
 ,,Daniel Magliola,IndeedFlex,dmagliola,
 ,,Daniel Swarbrick,,dswarbrick,
+,,Bob Example,LF,krook,
 ,,David Ashpole,Google,dashpole,
 ,,David Leadbeater,G-Research,dgl,
 ,,Doug Hoard,Confluent,dhoard,
@@ -2102,4 +2102,5 @@ Sandbox,Dalec,Brian Goff,Microsoft,cpuguy83,https://github.com/project-dalec/dal
 ,,Jeremy Rickard,Microsoft,jrrickard,
 ,,Sertac Ozercan,Microsoft,sozercan,
 ,,Peter Engelbert,Microsoft,pmengelbert,
+
 
