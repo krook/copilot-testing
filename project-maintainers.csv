@@ -150,13 +150,6 @@ Graduated,Prometheus,Alex Greenbank,Grafana Labs,alexgreenbank,https://prometheu
 ,,Tobias Schmidt,Independent,grobie,
 ,,Tom Wilkie,Grafana Labs,tomwilkie,
 Graduated,Envoy,Matt Klein,bitdrift,mattklein123,https://github.com/envoyproxy/envoy/blob/master/OWNERS.md
-,,Stephan Zuercher,Turbine Labs,zuercher,
-,,Greg Greenway,Apple,ggreenway,
-,,Yan Avlasov,Google,yanavlasov,
-,,Rohit Agrawal,Databricks,agrawroh,
-,,Ryan Northey,CNCF,phlax,
-,,Ryan Hamilton,Google,RyanTheOptimist,
-,,Joshua Marantz,Google,jmarantz,
 ,,Adi Peleg,Google,adisuissa,
 ,,Kevin Baichoo,Netflix,KBaichoo,
 ,,Baiping Wang,NetEase,wbpcode,
@@ -180,6 +173,13 @@ Graduated,CoreDNS,Chris O'Haver,Infoblox,chrisohaver,https://github.com/coredns/
 ,,Miek Gieben,,miekg,
 ,,Yong Tang,,yongtang,
 ,,Brad Beam,,bradbeam,
+,,Stephan Zuercher,Turbine Labs,zuercher,
+,,Greg Greenway,Apple,ggreenway,
+,,Yan Avlasov,Google,yanavlasov,
+,,Rohit Agrawal,Databricks,agrawroh,
+,,Ryan Northey,CNCF,phlax,
+,,Ryan Hamilton,Google,RyanTheOptimist,
+,,Joshua Marantz,Google,jmarantz,
 ,,Dmitry Ilyevsky,Cruise Automation,dilyevsky,
 ,,James Hartig,Admiral,fastest963,
 ,,Paul G,,greenpau,
@@ -2102,4 +2102,5 @@ Sandbox,Dalec,Brian Goff,Microsoft,cpuguy83,https://github.com/project-dalec/dal
 ,,Jeremy Rickard,Microsoft,jrrickard,
 ,,Sertac Ozercan,Microsoft,sozercan,
 ,,Peter Engelbert,Microsoft,pmengelbert,
+
 
