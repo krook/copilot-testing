@@ -75,7 +75,7 @@ jobs:
           # Add comment explaining requirements
           gh pr comment ${{ github.event.pull_request.number }} --body "⚠️ **PR Requirements Not Met**
 
-          This PR cannot be merged until the first three checkboxes are marked complete."
+          This PR can't be merged until the first three checkboxes are marked complete."
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
