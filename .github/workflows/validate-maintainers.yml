@@ -76,10 +76,6 @@ jobs:
       - name: Add warning comment if requirements not met
         if: steps.check-requirements.outputs.all_required_complete == 'false'
         run: |
-          # Set PR as draft when requirements are not met
-          echo "Setting PR to draft status..."
-          gh pr ready ${{ github.event.pull_request.number }} --undo || echo "Failed to set as draft or already draft"
-          
           # Debug token permissions
           echo "Attempting to add warning comment..."
           echo "PR number: ${{ github.event.pull_request.number }}"
@@ -102,10 +98,6 @@ jobs:
       - name: Add approval comment if requirements met
         if: steps.check-requirements.outputs.all_required_complete == 'true'
         run: |
-          # Set PR as ready for review when requirements are met
-          echo "Setting PR as ready for review..."
-          gh pr ready ${{ github.event.pull_request.number }} || echo "Failed to set as ready or already ready"
-          
           # Check if approval comment already exists
           if gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[].body' | grep -q "PR Requirements Complete"; then
             echo "Approval comment already exists, skipping..."
