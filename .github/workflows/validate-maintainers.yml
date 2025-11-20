@@ -131,21 +131,21 @@ jobs:
               """Parse CSV file and return list of rows with project inheritance"""
               rows = []
               current_project = ""
-              try:
+                try:
                   with open(filename, 'r', newline='', encoding='utf-8') as csvfile:
-                      reader = csv.reader(csvfile)
-                      for row in reader:
-                          if len(row) >= 4:  # Ensure minimum columns
-                              # Inherit project from most recent non-empty project row
-                              if len(row) > 1 and row[1].strip():  # Project column is not empty
-                                  current_project = row[1].strip()
-                              elif current_project:  # Project column is empty, use inherited
-                                  # Create a copy of the row with inherited project
-                                  row_copy = row.copy()
-                                  if len(row_copy) > 1:
-                                      row_copy[1] = current_project
-                                  row = row_copy
-                              rows.append(row)
+                    reader = csv.reader(csvfile)
+                    for row in reader:
+                      if len(row) >= 4:  # Ensure minimum columns
+                        # Inherit project from most recent non-empty project row
+                        if len(row) > 1 and row[1].strip():  # Project column is not empty
+                          current_project = row[1].strip()
+                        elif current_project:  # Project column is empty, use inherited
+                          # Create a copy of the row with inherited project
+                          row_copy = row.copy()
+                          if len(row_copy) > 1:
+                            row_copy[1] = current_project
+                          row = row_copy
+                        rows.append(row)
                 except FileNotFoundError:
                   return []
               return rows
