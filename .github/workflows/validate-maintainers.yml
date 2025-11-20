@@ -79,46 +79,57 @@ jobs:
           # Debug token permissions
           echo "Attempting to add warning comment..."
           echo "PR number: ${{ github.event.pull_request.number }}"
-          # Add comment explaining requirements
-          gh pr comment ${{ github.event.pull_request.number }} --body "⚠️ **PR Requirements Not Met**
-
-          This PR can't be merged until the first three checkboxes are marked complete." || {
-            echo "Failed to add comment. Trying with curl..."
-            curl -L \
-              -X POST \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.MAINTAINER_PR_TOKEN }}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
-              -d '{"body":"⚠️ **PR Requirements Not Met**\n\nThis PR can'\''t be merged until the first three checkboxes are marked complete."}'
-          }
+          
+          # Check if MAINTAINER_PR_TOKEN is available
+          if [ -z "$MAINTAINER_PR_TOKEN" ]; then
+            echo "MAINTAINER_PR_TOKEN not available, cannot post comments from forks"
+            exit 0
+          fi
+          
+          # Add comment explaining requirements using curl with PAT
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $MAINTAINER_PR_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+            -d '{"body":"⚠️ **PR Requirements Not Met**\n\nThis PR can'\''t be merged until the first three checkboxes are marked complete."}' || {
+              echo "Failed to add comment with curl"
+              exit 1
+            }
         env:
-          GH_TOKEN: ${{ secrets.MAINTAINER_PR_TOKEN }}
+          MAINTAINER_PR_TOKEN: ${{ secrets.MAINTAINER_PR_TOKEN }}
 
       - name: Add approval comment if requirements met
         if: steps.check-requirements.outputs.all_required_complete == 'true'
         run: |
+          # Check if MAINTAINER_PR_TOKEN is available
+          if [ -z "$MAINTAINER_PR_TOKEN" ]; then
+            echo "MAINTAINER_PR_TOKEN not available, cannot post comments from forks"
+            exit 0
+          fi
+          
           # Check if approval comment already exists
-          if gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[].body' | grep -q "PR Requirements Complete"; then
+          if curl -s -H "Authorization: Bearer $MAINTAINER_PR_TOKEN" \
+               "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" | \
+               jq -r '.[].body' | grep -q "PR Requirements Complete"; then
             echo "Approval comment already exists, skipping..."
             exit 0
           fi
           
           echo "Attempting to add approval comment..."
-          gh pr comment ${{ github.event.pull_request.number }} --body "✅ **PR Requirements Complete**
-
-          All required checkboxes have been completed. This PR is ready to be handled and merged." || {
-            echo "Failed to add comment via gh CLI, trying curl..."
-            curl -L \
-              -X POST \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.MAINTAINER_PR_TOKEN }}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
-              -d '{"body":"✅ **PR Requirements Complete**\n\nAll required checkboxes have been completed. This PR is ready to be handled and merged."}'
-          }
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $MAINTAINER_PR_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+            -d '{"body":"✅ **PR Requirements Complete**\n\nAll required checkboxes have been completed. This PR is ready to be handled and merged."}' || {
+              echo "Failed to add comment with curl"
+              exit 1
+            }
         env:
-          GH_TOKEN: ${{ secrets.MAINTAINER_PR_TOKEN }}
+          MAINTAINER_PR_TOKEN: ${{ secrets.MAINTAINER_PR_TOKEN }}
 
       - name: Analyze CSV changes
         if: steps.check-requirements.outputs.all_required_complete == 'true'
@@ -238,8 +249,16 @@ jobs:
       - name: Add changes comment
         if: steps.analyze-changes.outputs.has_changes == 'true' && steps.check-requirements.outputs.all_required_complete == 'true'
         run: |
+          # Check if MAINTAINER_PR_TOKEN is available
+          if [ -z "$MAINTAINER_PR_TOKEN" ]; then
+            echo "MAINTAINER_PR_TOKEN not available, cannot post comments from forks"
+            exit 0
+          fi
+          
           # Check if changes comment already exists
-          if gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[].body' | grep -q "Maintainer Changes Summary"; then
+          if curl -s -H "Authorization: Bearer $MAINTAINER_PR_TOKEN" \
+               "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" | \
+               jq -r '.[].body' | grep -q "Maintainer Changes Summary"; then
             echo "Changes summary comment already exists, skipping..."
             exit 0
           fi
@@ -297,28 +316,24 @@ jobs:
           CHANGES_TABLE=$(cat changes_table.md)
 
           echo "Attempting to add changes summary comment..."
-          gh pr comment ${{ github.event.pull_request.number }} --body "## 📋 Maintainer Changes Summary
-
-          The following maintainer changes are ready to handle:
-
-          $CHANGES_TABLE" || {
-            echo "Failed to add comment via gh CLI, trying alternative approach..."
-            # Save comment body to file and use curl
-            cat > comment_body.json << EOF
+          # Save comment body to file and use curl with PAT
+          cat > comment_body.json << EOF
           {
             "body": "## 📋 Maintainer Changes Summary\n\nThe following maintainer changes are ready to handle:\n\n$(cat changes_table.md | sed 's/"/\\"/g' | sed ':a;N;$!ba;s/\n/\\n/g')"
           }
           EOF
-            curl -L \
-              -X POST \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.MAINTAINER_PR_TOKEN }}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
-              -d @comment_body.json
-          }
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $MAINTAINER_PR_TOKEN" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+            -d @comment_body.json || {
+              echo "Failed to add comment with curl"
+              exit 1
+            }
         env:
-          GH_TOKEN: ${{ secrets.MAINTAINER_PR_TOKEN }}
+          MAINTAINER_PR_TOKEN: ${{ secrets.MAINTAINER_PR_TOKEN }}
 
       - name: Upload changes summary as artifact
         if: steps.analyze-changes.outputs.has_changes == 'true'
