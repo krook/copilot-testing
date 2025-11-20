@@ -98,6 +98,12 @@ jobs:
       - name: Add approval comment if requirements met
         if: steps.check-requirements.outputs.all_required_complete == 'true'
         run: |
+          # Check if approval comment already exists
+          if gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[].body' | grep -q "PR Requirements Complete"; then
+            echo "Approval comment already exists, skipping..."
+            exit 0
+          fi
+          
           echo "Attempting to add approval comment..."
           gh pr comment ${{ github.event.pull_request.number }} --body "✅ **PR Requirements Complete**
 
@@ -232,6 +238,12 @@ jobs:
       - name: Add changes comment
         if: steps.analyze-changes.outputs.has_changes == 'true' && steps.check-requirements.outputs.all_required_complete == 'true'
         run: |
+          # Check if changes comment already exists
+          if gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[].body' | grep -q "Maintainer Changes Summary"; then
+            echo "Changes summary comment already exists, skipping..."
+            exit 0
+          fi
+          
           # Create Markdown table from changes summary
           python3 << 'EOF'
           import csv
