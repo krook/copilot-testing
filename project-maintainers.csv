@@ -11,7 +11,6 @@ Graduated,Kubernetes steering,Antonio Ojea,Google,aojea,https://git.k8s.io/steer
 ,,Aravindh Puthiyaparambil,Softdrive Technologies Group Inc.,aravindhp,
 ,,Arda Guclu,Red Hat,ardaguclu,
 ,,Arnaud Meukam,Independent,ameukam,
-,,Benjamin Wang,Broadcom,ahrtr,
 ,,Brady Pratt,Red Hat,jbpratt,
 ,,Bridget Kromhout,Microsoft,bridgetkromhout,
 ,,Brian McQueen,LinkedIn,xmcqueen,
@@ -114,6 +113,7 @@ Graduated,Prometheus,Alex Greenbank,Grafana Labs,alexgreenbank,https://prometheu
 ,,Chris Marchbanks,Grafana Labs,csmarchbanks,
 ,,Chris Sinjakli,PlanetScale,Sinjo,
 ,,Conrad Hoffmann,,bitfehler,
+,,Bob Jones,Broadware,krook,
 ,,Cristian Greco,Grafana Labs,cristiangreco,
 ,,Daniel Magliola,IndeedFlex,dmagliola,
 ,,Daniel Swarbrick,,dswarbrick,
@@ -2102,4 +2102,5 @@ Sandbox,Dalec,Brian Goff,Microsoft,cpuguy83,https://github.com/project-dalec/dal
 ,,Jeremy Rickard,Microsoft,jrrickard,
 ,,Sertac Ozercan,Microsoft,sozercan,
 ,,Peter Engelbert,Microsoft,pmengelbert,
+
 
